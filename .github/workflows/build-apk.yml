@@ -7,23 +7,29 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '17'
 
-      - uses: android-actions/setup-android@v3
-
-      - uses: gradle/actions/setup-gradle@v4
-
+      # GitHub's Ubuntu machines come with the Android SDK in $ANDROID_HOME.
       - name: Build debug APK
         run: |
+          set -o pipefail
+          echo "sdk.dir=$ANDROID_HOME" > local.properties
+          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses > /dev/null || true
           chmod +x gradlew
-          ./gradlew --no-daemon assembleDebug
+          if ! ./gradlew --no-daemon --console=plain assembleDebug 2>&1 | tee build.log; then
+            # Surface the compiler errors as run annotations (readable without the log).
+            grep -E "error:|ERROR|FAILURE|What went wrong|\.java:[0-9]+" build.log | head -30 | while IFS= read -r line; do
+              echo "::error::${line:0:300}"
+            done
+            exit 1
+          fi
 
       - uses: actions/upload-artifact@v4
         with:
