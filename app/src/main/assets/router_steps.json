@@ -1,0 +1,22 @@
+{
+  "_readme": "Steps the app performs in the router page. Placeholders: {router_url} {username} {password} {name} {mac}. Selectors are CSS, or text=Words to click visible text. Separate alternatives with ||. Only visible elements count, and frames are searched automatically.",
+  "mac_format": "colon-upper",
+  "login": [
+    { "action": "goto", "url": "{router_url}" },
+    { "action": "fill", "selector": "#Frm_Username", "value": "{username}" },
+    { "action": "fill", "selector": "#Frm_Password", "value": "{password}" },
+    { "action": "click", "selector": "#LoginId" },
+    { "action": "wait_for", "selector": "text=Local Network", "timeout": 10000 }
+  ],
+  "add_device": [
+    { "action": "click", "selector": "text=Local Network" },
+    { "action": "click", "selector": "text=WLAN", "optional": true },
+    { "action": "click", "selector": "text=Access Control || text=MAC Filter" },
+    { "action": "wait", "ms": 1500 },
+    { "action": "click", "selector": "text=Create New Item", "optional": true, "timeout": 3000 },
+    { "action": "fill", "selector": "input[id*='Name' i]", "value": "{name}", "optional": true, "timeout": 3000 },
+    { "action": "fill", "selector": "input[id*='MAC' i]", "value": "{mac}" },
+    { "action": "click", "selector": "input[value='Apply'] || input[value='Add'] || text=Apply" },
+    { "action": "wait", "ms": 2500 }
+  ]
+}
